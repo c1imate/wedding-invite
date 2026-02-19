@@ -572,7 +572,7 @@
                     <form id="rsvpForm" class="space-y-6">
                         <div>
                             <label class="block text-gold-400 text-sm uppercase tracking-wider mb-2">Full Name</label>
-                            <input type="text"
+                            <input type="text" id="guestName" name="name"
                                 class="w-full bg-royal-900 border-b border-gold-500 text-cream px-4 py-3 focus:outline-none focus:border-gold-300 transition-colors"
                                 placeholder="Enter your name" required>
                         </div>
@@ -580,13 +580,9 @@
                         <div>
                             <label class="block text-gold-400 text-sm uppercase tracking-wider mb-2">Number of
                                 Guests</label>
-                            <select
-                                class="w-full bg-royal-900 border-b border-gold-500 text-cream px-4 py-3 focus:outline-none cursor-pointer">
-                                <option>1</option>
-                                <option>2</option>
-                                <option>3</option>
-                                <option>4</option>
-                            </select>
+                            <input type="number" id="guestCount" name="guests" min="1" step="1" required
+                                class="w-full bg-royal-900 border-b border-gold-500 text-cream px-4 py-3 focus:outline-none focus:border-gold-300 transition-colors"
+                                placeholder="Enter number of guests">
                         </div>
 
                         <div>
@@ -594,19 +590,21 @@
                             <div class="flex gap-4 mt-2">
                                 <label class="flex items-center cursor-pointer">
                                     <input type="radio" name="attendance"
+                                        value="Joyfully Accepts"
                                         class="form-radio text-gold-500 focus:ring-gold-500 bg-royal-900 border-gold-500"
                                         checked>
                                     <span class="ml-2 text-cream">Joyfully Accepts</span>
                                 </label>
                                 <label class="flex items-center cursor-pointer">
                                     <input type="radio" name="attendance"
+                                        value="Regretfully Declines"
                                         class="form-radio text-gold-500 focus:ring-gold-500 bg-royal-900 border-gold-500">
                                     <span class="ml-2 text-cream">Regretfully Declines</span>
                                 </label>
                             </div>
                         </div>
 
-                        <button type="submit"
+                        <button id="rsvpSubmitBtn" type="submit"
                             class="w-full bg-gold-500 text-royal-900 font-bold font-serif py-4 hover:bg-cream transition-colors duration-300 mt-4">
                             SEND CONFIRMATION
                         </button>
@@ -928,9 +926,36 @@
             });
         });
 
+        const RSVP_WEBAPP_URL = "https://script.google.com/macros/s/AKfycby2x-DJj31OGOf5LW1EMf-kvxM3ZuckIV3KGey3W_s8jfGQbQqf23FbK2nv8lYAu5Pu/exec";
         const form = document.getElementById('rsvpForm');
-        form.addEventListener('submit', (e) => {
+        const submitBtn = document.getElementById('rsvpSubmitBtn');
+
+        form.addEventListener('submit', async (e) => {
             e.preventDefault();
+
+            const formData = new FormData(form);
+            const payload = {
+                name: String(formData.get('name') || '').trim(),
+                guests: Number(formData.get('guests') || 1),
+                attendance: String(formData.get('attendance') || '')
+            };
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'SENDING...';
+
+            try {
+                await fetch(RSVP_WEBAPP_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+            } catch (error) {
+                console.error('RSVP submit failed', error);
+            }
+
             gsap.to(form, {
                 opacity: 0,
                 y: -20,
