@@ -268,6 +268,9 @@
             <!-- Content -->
             <div class="relative z-10 text-center px-4 mt-20">
                 <div class="gsap-hero-reveal transform translate-y-10 opacity-0">
+                    <p class="font-serif text-red-400 text-lg md:text-xl mb-4 tracking-wide">
+                        <i class="fas fa-hands-praying mr-2"></i>Shree Ganeshay Namah<i class="fas fa-hands-praying ml-2"></i>
+                    </p>
                     <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Om_symbol.svg/250px-Om_symbol.svg.png"
                         class="w-16 h-16 mx-auto mb-6 opacity-90 om-icon-red"
                         alt="Om">
@@ -332,7 +335,7 @@
                     </div>
 
                     <!-- Heart Icon -->
-                    <div class="text-gold-500 text-4xl md:text-6xl animate-pulse">
+                    <div class="text-red-600 text-4xl md:text-6xl animate-pulse">
                         <i class="fas fa-heart"></i>
                     </div>
 
@@ -704,6 +707,7 @@
         const musicControl = document.getElementById('musicControl');
         const musicIcon = document.getElementById('musicIcon');
         let isPlaying = false;
+        let autoScrollIntervalId = null;
         const audioSources = [
             "https://res.cloudinary.com/dpqzmmkcg/video/upload/v1771493197/Kudmayi-_Film-Version_PaglaSongs_wqvwqy.mp3"
         ];
@@ -722,6 +726,26 @@
                 }
             }
             return false;
+        }
+
+        function startAutoScrollEvery15Seconds() {
+            if (autoScrollIntervalId !== null) {
+                return;
+            }
+
+            autoScrollIntervalId = window.setInterval(() => {
+                const maxScrollY = document.documentElement.scrollHeight - window.innerHeight;
+                const currentY = window.scrollY;
+
+                if (currentY >= maxScrollY - 4) {
+                    window.clearInterval(autoScrollIntervalId);
+                    autoScrollIntervalId = null;
+                    return;
+                }
+
+                const nextY = Math.min(currentY + window.innerHeight * 0.85, maxScrollY);
+                window.scrollTo({ top: nextY, behavior: "smooth" });
+            }, 15000);
         }
 
         // Intro Animation for Button
@@ -754,6 +778,7 @@
             const openTl = gsap.timeline({
                 onComplete: () => {
                     curtainLayer.style.display = 'none';
+                    startAutoScrollEvery15Seconds();
                 }
             });
 
